@@ -1,19 +1,21 @@
 tool
 extends Node2D
 
-export var length: = 3 setget set_tree_length
+#The height of the tree. This actually stays consistent, even when playing the game...
+export var height: = 3 setget set_tree_height
+
+export var previousChildren = []
 
 var texture = preload("res://src/environment/tree-generator/tile.png")
 var crown = preload("res://src/environment/tree-generator/crown.tscn")
 
 
 # - - - - - SETTER - - - - - 
-func set_tree_length(value):
-	
-	#Update the length, minimum and max size defined here.
-	length = value
+func set_tree_height(value):
+	#Update the height, minimum and max size defined here.
+	height = value
 	value += 1
-	length = int(clamp(length, 3, 17))
+	height = int(clamp(height, 3, 17))
 	
 	#Delete previous generation:
 	var children = self.get_children()
@@ -21,25 +23,37 @@ func set_tree_length(value):
 		if child.is_in_group("remove"):
 			remove_child(child)
 			child.queue_free()
-	create_tree(value)
+	create_tree(height)
+	
+	#TESTING NOT STABLE
+	var tempArray = []
+	previousChildren = tempArray
+	for child in self.get_children():
+		tempArray.append(child)
+	previousChildren = tempArray
+	print(previousChildren)
 
 
 # - - - - - TREE - - - - - 
-func create_tree(value):
-	#Length will loop and add sprites for the trunk.
-	for trunk in value:
+func create_tree(treeHeight):
+	#Create the tree stump once.
+	create_part(0, [25], false)
+	
+	#Height will loop and add sprites for the trunk.
+	for trunk in treeHeight:
 		trunk += 1
 		create_part(trunk, [16, 20, 21, 24, 26] if trunk > 2 else [16, 20], true)
 	
-	
 	# Create random amount of crowns, atleast one.
 	randomize()
-	var randomRange = Vector2(1,1) if value < 10 else Vector2(2,3)
+	var randomRange = Vector2(1,1) if height < 8 else Vector2(2,4)
 	for i in int(rand_range(randomRange.x, randomRange.y)):
-		create_crown(i, length)
+		create_crown(i, treeHeight)
 
 
-# - - - - - TRUNK - - - - - 
+#This function adds a Sprite Node and sets the properties (specific to this tool).
+#It returns the generated Sprite, to generate branches and sprouts (if wanted).
+# - - - - - TRUNK / PARTS - - - - - 
 func create_part(trunk, spritePool, createBranch):
 	
 	var sprite = Sprite.new()
@@ -56,7 +70,6 @@ func create_part(trunk, spritePool, createBranch):
 	
 	if createBranch:
 		create_branch(trunk, sprite.frame)
-	
 	return sprite
 
 
@@ -78,7 +91,8 @@ func create_branch(trunk, currentTrunkFrame):
 				branch_sprout(trunk, randomBranchFrame, randomSproutFrame, 1)
 
 
-
+#This function creates the branches and sprouts, depending on the trunk frames.
+#Depending on the side / orientation, the Sprites need to be flipped.
 # - - - - - SPROUTS - - - - - 
 func branch_sprout(trunk, branchSprites, sproutSprites, side):
 	var branchSprite = create_part(trunk, branchSprites, false)
@@ -93,17 +107,18 @@ func branch_sprout(trunk, branchSprites, sproutSprites, side):
 		if sproutSprite.frame == 0:
 			sproutSprite.position.y -= 4.5
 			sproutSprite.position.x -= 2 * side
-
+	
 		if side == 1 and (sproutSprite.frame == 22 or sproutSprite.frame == 18):
 			sproutSprite.flip_h = true
 
 
+#This function instances a crown and adds it to the tree.
+#The generating part happens in crown.gd!
 # - - - - - CROWN - - - - -
-func create_crown(sizeSub, height):
+func create_crown(sizeSub, treeHeight):
 	
 	#Instance a crown
 	var newCrown = crown.instance()
 	self.add_child(newCrown)
 	newCrown.add_to_group("remove")
-	
-	newCrown.init(sizeSub, height)
+	newCrown.init(sizeSub, treeHeight)
