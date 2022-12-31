@@ -14,7 +14,6 @@ func init(sizeSub, height):
 	create_particles(crown, particles)
 
 
-
 func create_particles(crown, particles):
 	#Create a particlesystem that adds 'leaves'.
 	for partsys in particles:
@@ -28,18 +27,16 @@ func create_collision(crown, collision):
 	coll_shape.shape = RectangleShape2D.new()
 	coll_shape.one_way_collision = true
 	coll_shape.shape.extents = crown.rect_size / 2 - Vector2(1,1)
-	coll_shape.position = crown.rect_size / 2
+	collision.position = crown.rect_size / 2
 	collision.add_child(coll_shape)
 
 
 func set_size_position(sizeSub, height, crown):
 	#Random size
-	randomize()
 	var randomSize = Vector2(int(rand_range(3, 7)),int(rand_range(3, 7))) if height > 5 else Vector2(int(rand_range(1, 4)),int(rand_range(1, 4)))
 	crown.rect_size = randomSize * 18
 
 	#Random position
-	randomize()
 	var posX = int(rand_range(1, (2 * randomSize.x - 1)))
 	crown.rect_position.x = (posX - sizeSub) * -9
 	crown.rect_position.y = (height + 4 - sizeSub) * -18

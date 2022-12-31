@@ -4,4 +4,4 @@
 
 [node name="tree" type="Node2D"]
 script = ExtResource( 2 )
-previousChildren = [ null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null ]
+children = [  ]

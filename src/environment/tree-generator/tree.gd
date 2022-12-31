@@ -1,37 +1,57 @@
 tool
 extends Node2D
 
-#The height of the tree. This actually stays consistent, even when playing the game...
 export var height: = 3 setget set_tree_height
-
-export var previousChildren = []
+export var keep: = false setget set_keep
+export var previousSeed: String setget set_seed
 
 var texture = preload("res://src/environment/tree-generator/tile.png")
 var crown = preload("res://src/environment/tree-generator/crown.tscn")
+var rng = RandomNumberGenerator.new()
+
+func _ready():
+#	rng.seed = int(previousSeed)
+	set_tree_height(height)
 
 
-# - - - - - SETTER - - - - - 
+# - - - - - SETTER - - - - -
+#Update the seed.
+func set_seed(value):
+	previousSeed = str(rng.seed)
+	value = rng.seed
+	
+#Keep the seed / shape of the tree.
+func set_keep(value):
+	keep = value
+
+#Set the height value.
 func set_tree_height(value):
+	if keep:
+		if !Engine.editor_hint:
+			printt("Ingame RNG: ", "Current: " + str(rng.seed), "Previous: " + str(previousSeed))
+			setup(value)
+		return
+	
+	#Store the current seed.
+	previousSeed = str(rng.seed)
+	printt("Set Seed as: ", rng.seed)
+	setup(value)
+
+
+#Setup function, that starts the tree creation.
+func setup(value):
 	#Update the height, minimum and max size defined here.
 	height = value
 	value += 1
 	height = int(clamp(height, 3, 17))
 	
 	#Delete previous generation:
-	var children = self.get_children()
-	for child in children:
+	var removeChildren = self.get_children()
+	for child in removeChildren:
 		if child.is_in_group("remove"):
 			remove_child(child)
 			child.queue_free()
 	create_tree(height)
-	
-	#TESTING NOT STABLE
-	var tempArray = []
-	previousChildren = tempArray
-	for child in self.get_children():
-		tempArray.append(child)
-	previousChildren = tempArray
-	print(previousChildren)
 
 
 # - - - - - TREE - - - - - 
@@ -45,9 +65,14 @@ func create_tree(treeHeight):
 		create_part(trunk, [16, 20, 21, 24, 26] if trunk > 2 else [16, 20], true)
 	
 	# Create random amount of crowns, atleast one.
-	randomize()
-	var randomRange = Vector2(1,1) if height < 8 else Vector2(2,4)
-	for i in int(rand_range(randomRange.x, randomRange.y)):
+	var randomRange = Vector2.ZERO
+	if height <= 7:
+		randomRange = Vector2(1,1)
+	if height > 7 and height <= 10:
+		randomRange = Vector2(2,2)
+	if height > 10:
+		randomRange = Vector2(2,3)
+	for i in (rng.randi_range(randomRange.x, randomRange.y)):
 		create_crown(i, treeHeight)
 
 
@@ -64,8 +89,8 @@ func create_part(trunk, spritePool, createBranch):
 	sprite.vframes = 7
 	sprite.z_index = -1
 	sprite.position.y = -18 * (trunk + 0.5)
-	randomize()
-	sprite.frame = spritePool[randi() % spritePool.size()]
+	
+	sprite.frame = spritePool[rng.randi() % spritePool.size()]
 	self.add_child(sprite)
 	
 	if createBranch:
@@ -107,18 +132,32 @@ func branch_sprout(trunk, branchSprites, sproutSprites, side):
 		if sproutSprite.frame == 0:
 			sproutSprite.position.y -= 4.5
 			sproutSprite.position.x -= 2 * side
+			#Create a collision for the little itty bitty floof sprout.
+			create_sprout_collision(sproutSprite.position)
 	
 		if side == 1 and (sproutSprite.frame == 22 or sproutSprite.frame == 18):
 			sproutSprite.flip_h = true
+
+#Thi function creates a small collision for the special floof sprout.
+func create_sprout_collision(position):
+	var body = StaticBody2D.new()
+	var coll_shape = CollisionShape2D.new()
+	coll_shape.shape = RectangleShape2D.new()
+	coll_shape.one_way_collision = true
+	coll_shape.shape.extents = Vector2(8, 8)
+	body.position = position
+	body.add_to_group("remove")
+	self.add_child(body)
+	body.add_child(coll_shape)
 
 
 #This function instances a crown and adds it to the tree.
 #The generating part happens in crown.gd!
 # - - - - - CROWN - - - - -
 func create_crown(sizeSub, treeHeight):
-	
 	#Instance a crown
 	var newCrown = crown.instance()
+	newCrown.z_index = (sizeSub - 1)
 	self.add_child(newCrown)
 	newCrown.add_to_group("remove")
 	newCrown.init(sizeSub, treeHeight)
