@@ -23,4 +23,7 @@ zoom = Vector2( 0.421, 0.428 )
 
 [node name="tree" parent="." instance=ExtResource( 1 )]
 height = 7
-previousSeed = "-3501118895998588239"
+
+[node name="tree2" parent="." instance=ExtResource( 1 )]
+position = Vector2( 104, 8 )
+height = 11

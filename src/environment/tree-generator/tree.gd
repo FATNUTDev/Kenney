@@ -3,23 +3,34 @@ extends Node2D
 
 export var height: = 3 setget set_tree_height
 export var keep: = false setget set_keep
-export var previousSeed: String setget set_seed
 
 var texture = preload("res://src/environment/tree-generator/tile.png")
 var crown = preload("res://src/environment/tree-generator/crown.tscn")
-var rng = RandomNumberGenerator.new()
+
+#Inner Classes, to store the tree data. The tree data is used on runtime,
+#to generate the same tree as in testing.
+class TreeData:
+	var trunk: Trunk
+	var crowns: = []
+
+class Trunk:
+	var segments: = []
+	var texture := ""
+
+class TrunkSegment:
+	var angle := 0.0
+	var thickness_start := 20.0
+	var thickness_end := 20.0
+
+class Crown:
+	var radius := 100.0
+
 
 func _ready():
-#	rng.seed = int(previousSeed)
 	set_tree_height(height)
 
 
-# - - - - - SETTER - - - - -
-#Update the seed.
-func set_seed(value):
-	previousSeed = str(rng.seed)
-	value = rng.seed
-	
+# - - - - - SETTER - - - - -	
 #Keep the seed / shape of the tree.
 func set_keep(value):
 	keep = value
@@ -27,14 +38,7 @@ func set_keep(value):
 #Set the height value.
 func set_tree_height(value):
 	if keep:
-		if !Engine.editor_hint:
-			printt("Ingame RNG: ", "Current: " + str(rng.seed), "Previous: " + str(previousSeed))
-			setup(value)
 		return
-	
-	#Store the current seed.
-	previousSeed = str(rng.seed)
-	printt("Set Seed as: ", rng.seed)
 	setup(value)
 
 
@@ -64,7 +68,7 @@ func create_tree(treeHeight):
 		trunk += 1
 		create_part(trunk, [16, 20, 21, 24, 26] if trunk > 2 else [16, 20], true)
 	
-	# Create random amount of crowns, atleast one.
+	# Create random amount of crowns, based on the height, atleast one.
 	var randomRange = Vector2.ZERO
 	if height <= 7:
 		randomRange = Vector2(1,1)
@@ -72,7 +76,7 @@ func create_tree(treeHeight):
 		randomRange = Vector2(2,2)
 	if height > 10:
 		randomRange = Vector2(2,3)
-	for i in (rng.randi_range(randomRange.x, randomRange.y)):
+	for i in (rand_range(randomRange.x, randomRange.y)):
 		create_crown(i, treeHeight)
 
 
@@ -90,7 +94,7 @@ func create_part(trunk, spritePool, createBranch):
 	sprite.z_index = -1
 	sprite.position.y = -18 * (trunk + 0.5)
 	
-	sprite.frame = spritePool[rng.randi() % spritePool.size()]
+	sprite.frame = spritePool[randi() % spritePool.size()]
 	self.add_child(sprite)
 	
 	if createBranch:
@@ -138,7 +142,8 @@ func branch_sprout(trunk, branchSprites, sproutSprites, side):
 		if side == 1 and (sproutSprite.frame == 22 or sproutSprite.frame == 18):
 			sproutSprite.flip_h = true
 
-#Thi function creates a small collision for the special floof sprout.
+
+#This function creates a small collision for the special floof sprout.
 func create_sprout_collision(position):
 	var body = StaticBody2D.new()
 	var coll_shape = CollisionShape2D.new()

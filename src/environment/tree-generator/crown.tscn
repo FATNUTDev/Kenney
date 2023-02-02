@@ -20,7 +20,7 @@ curve = SubResource( 4 )
 
 [sub_resource type="ParticlesMaterial" id=6]
 emission_shape = 2
-emission_box_extents = Vector3( 31, 1, 1 )
+emission_box_extents = Vector3( 40, 1, 1 )
 flag_disable_z = true
 gravity = Vector3( 0, 1.2, 0 )
 orbit_velocity = 0.0

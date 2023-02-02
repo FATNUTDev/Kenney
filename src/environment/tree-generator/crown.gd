@@ -21,7 +21,8 @@ func create_particles(crown, particles):
 		partsys.position.y = crown.rect_size.y - 18
 		partsys.process_material.emission_box_extents.x = (crown.rect_size.x / 2) - 5
 
-
+# Creating a nnew CollisionShape2D is crucial, as the RectangleShape2D-Ressource
+# shares the properties with each instance.
 func create_collision(crown, collision):
 	var coll_shape = CollisionShape2D.new()
 	coll_shape.shape = RectangleShape2D.new()

@@ -4,4 +4,4 @@
 
 [node name="tree" type="Node2D"]
 script = ExtResource( 2 )
-children = [  ]
+previousSeed = "-6398989897141750821"
