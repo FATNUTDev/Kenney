@@ -3,31 +3,56 @@ extends Node2D
 
 export var height: = 3 setget set_tree_height
 export var keep: = false setget set_keep
+export var segments: = []
+export var crowns: = []
 
 var texture = preload("res://src/environment/tree-generator/tile.png")
 var crown = preload("res://src/environment/tree-generator/crown.tscn")
 
+
 #Inner Classes, to store the tree data. The tree data is used on runtime,
 #to generate the same tree as in testing.
 class TreeData:
-	var trunk: Trunk
+	var segments: = []
 	var crowns: = []
 
-class Trunk:
-	var segments: = []
-	var texture := ""
-
+#These are Sprite2D nodes!
 class TrunkSegment:
-	var angle := 0.0
-	var thickness_start := 20.0
-	var thickness_end := 20.0
+	var frame := 0
+	var position := Vector2()
+	var hframes := 4
+	var vframes := 7
+	var flip_h := false
+	var collision := false
 
 class Crown:
 	var radius := 100.0
-
+	
 
 func _ready():
-	set_tree_height(height)
+	if not Engine.editor_hint:
+		for i in segments.size():
+			var sprite = Sprite.new()
+			sprite.texture = texture
+			sprite.hframes = 4
+			sprite.vframes = 4
+			sprite.frame = segments[i].frame
+			sprite.position = segments[i].position
+			self.add_child(sprite)
+		
+
+#		var treeData = TreeData.new()
+#		treeData.segments = segments
+#		treeData.crowns = crowns
+#
+#		for segment in treeData.segments:
+#			var sprite = Sprite.new()
+#			sprite.texture = texture
+#			sprite.hframes = 4
+#			sprite.vframes = 4
+#			sprite.frame = segment.frame
+#			sprite.position = segment.position
+#			self.add_child(sprite)
 
 
 # - - - - - SETTER - - - - -	
@@ -39,6 +64,7 @@ func set_keep(value):
 func set_tree_height(value):
 	if keep:
 		return
+	segments.clear()
 	setup(value)
 
 
@@ -99,6 +125,17 @@ func create_part(trunk, spritePool, createBranch):
 	
 	if createBranch:
 		create_branch(trunk, sprite.frame)
+	
+	#Saving the sprites in Segments
+	var savePart = TrunkSegment.new()
+	savePart.frame = sprite.frame
+	savePart.position = sprite.position
+	segments.append(savePart)
+	printt(segments, savePart, savePart.frame)
+	
+	for i in segments.size():
+		print(segments[i].frame)
+	
 	return sprite
 
 

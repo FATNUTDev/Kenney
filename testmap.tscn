@@ -22,8 +22,9 @@ current = true
 zoom = Vector2( 0.421, 0.428 )
 
 [node name="tree" parent="." instance=ExtResource( 1 )]
-height = 7
-
-[node name="tree2" parent="." instance=ExtResource( 1 )]
-position = Vector2( 104, 8 )
-height = 11
+position = Vector2( -10, -36 )
+segments = [ Object(Reference,"script":null,"frame":25,"position":Vector2( 0, -9 ),"hframes":4,"vframes":7,"flip_h":false,"collision":false)
+, Object(Reference,"script":null,"frame":16,"position":Vector2( 0, -27 ),"hframes":4,"vframes":7,"flip_h":false,"collision":false)
+, Object(Reference,"script":null,"frame":16,"position":Vector2( 0, -45 ),"hframes":4,"vframes":7,"flip_h":false,"collision":false)
+, Object(Reference,"script":null,"frame":16,"position":Vector2( 0, -63 ),"hframes":4,"vframes":7,"flip_h":false,"collision":false)
+ ]
